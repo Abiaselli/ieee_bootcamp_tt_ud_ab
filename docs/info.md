@@ -9,12 +9,12 @@ You can also include images in this folder and reference them in the markdown. E
 
 ## How it works
 
-Explain how your project works
+The circuit uses three subcircuits to replicate the V prime, U prime, and If/Then logic of the Izhikevich neuron state system.
 
 ## How to test
 
-Explain how to use your project
+Current is input onto node V or U which drives the spiking behavior of the neuron, measured on node V.
 
 ## External hardware
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+External current and voltage source required.
