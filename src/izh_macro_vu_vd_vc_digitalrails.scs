@@ -1,0 +1,20 @@
+// Spectre placeholder/stub for the analog hard macro interface used by src/project.v.
+// Replace the body with the extracted transistor-level SKY130 neuron subckt.
+// Pin order mirrors the Verilog blackbox:
+//   V U VD VC VGND VDPWR ACK REQ_N
+
+simulator lang=spectre
+
+global 0
+
+subckt izh_sky130_macro_vu_vd_vc V U VD VC VGND VDPWR ACK REQ_N
+    // TODO: replace with SKY130 transistor-level analog Izhikevich circuit.
+    // V    = membrane node / ISYN injection node
+    // U    = slow recovery variable node
+    // VD   = recovery increment/reset bias
+    // VC   = membrane reset bias
+    // VGND = Tiny Tapeout ground rail
+    // VDPWR= Tiny Tapeout 1.8 V rail
+    // ACK  = digital ACK input, VDPWR-domain
+    // REQ_N= digital request output, active low, VDPWR-domain
+ends izh_sky130_macro_vu_vd_vc
