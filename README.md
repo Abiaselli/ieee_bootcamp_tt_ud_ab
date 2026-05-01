@@ -15,11 +15,9 @@ This pack was generated from the uploaded `zvndigital.cir` topology and the 2022
 | Tiny Tapeout pin | Proposed function | Notes |
 |---|---|---|
 | ua[0] | V / Isyn | Membrane node and external current/voltage injection node |
-| ua[1] | U | Recovery-variable monitor node |
-| ua[2] | VC | V reset bias |
-| ua[3] | VD | U increment/reset bias |
-| ua[4] | VGND_B | Local ground/reference bias |
-| ua[5] | VDD_B | Local neuron supply/bias |
+| ua[1] | VDD_B | Local neuron supply/bias |
+| ua[2] | VD | U increment/reset bias |
+| ua[3] | VC | V reset bias |
 | ui_in[0] | ACK | Active-high acknowledge/reset input |
 | uo_out[0] | REQ_N | Active-low request/spike output |
 
