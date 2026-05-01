@@ -2,19 +2,18 @@
 project:
   title: "Analog Izhikevich Neuron"
   author: "Austin Biaselli"
-  discord:      "auslander3951"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description: "Mixed-signal SKY130 Izhikevich neuron with analog V/U dynamics and digital AER ACK/REQ wrapper"      # One line description of what your project does
-  language:     "Analog" # other examples include SystemVerilog, Amaranth, VHDL, etc
-  clock_hz: 1000000
+  discord: "auslander3951"
+  description: "Mixed-signal SKY130 Izhikevich neuron with four analog control pins and digital ACK/REQ handshake"
+  language: "Analog"
+  clock_hz: 0
 
-  # SKY130 analog projects are 1x2 or 2x2. Start with 1x2 unless layout/caps need more room.
+  # SKY130 analog projects are 1x2 or 2x2. This version targets the 1x2 analog template.
   tiles: "1x2"
 
-  # Uses all six user analog pins ua[0] through ua[5]. TT exposes at most the first six analog pins.
-  analog_pins: 6
+  # Four paid/connected analog pins: ua[0] through ua[3]. Use pins in order starting from ua[0].
+  analog_pins: 4
 
-  # Set true only if the final custom-GDS macro uses the TT 3.3V VAPWR rail.
-  # This first version expects the neuron bias/supply to be driven externally on ua[5], so keep false.
+  # Set true only if the custom layout uses the optional 3.3 V VAPWR rail and the _3v3 DEF template.
   uses_3v3: false
 
   # Must match the Verilog stub module name and the final GDS/LEF top cell name.
@@ -27,18 +26,18 @@ project:
 # Pin descriptions for the datasheet/website. Leave unused pins blank; do not add or remove pins.
 pinout:
   # Dedicated digital inputs
-  ui[0]: "ACK_EXT - external acknowledge/reset pulse, active high"
-  ui[1]: "AUTO_ACK_EN - enable internal delayed ACK generator"
-  ui[2]: "ACK_DELAY0 - auto-ACK delay select bit 0"
-  ui[3]: "ACK_DELAY1 - auto-ACK delay select bit 1"
-  ui[4]: "ACK_WIDTH0 - auto-ACK pulse width select bit 0"
-  ui[5]: "ACK_WIDTH1 - auto-ACK pulse width select bit 1"
+  ui[0]: "ACK - acknowledge/reset pulse to analog neuron, active high"
+  ui[1]: ""
+  ui[2]: ""
+  ui[3]: ""
+  ui[4]: ""
+  ui[5]: ""
   ui[6]: ""
   ui[7]: ""
 
   # Dedicated digital outputs
-  uo[0]: "REQ_N - active-low spike/request from analog neuron macro"
-  uo[1]: "ACK_TO_MACRO - ACK actually sent to analog reset/AER circuit"
+  uo[0]: "REQ_N - active-low request/spike output from analog neuron"
+  uo[1]: ""
   uo[2]: ""
   uo[3]: ""
   uo[4]: ""
@@ -58,14 +57,11 @@ pinout:
 
   # Analog pins - analog_pins above must match the number used here.
   ua[0]: "V / ISYN - membrane capacitor node and external input-current injection node"
-  ua[1]: "U - recovery-variable capacitor monitor node"
-  ua[2]: "VC - membrane reset bias voltage"
-  ua[3]: "VD - recovery increment/reset bias voltage"
-  ua[4]: "VGND_B - local analog ground/reference bias"
-  ua[5]: "VDD_B - local neuron bias/supply input"
-
-# Do not change!
-yaml_version: 6
+  ua[1]: "VDD_B - adjustable analog neuron supply/bias"
+  ua[2]: "VD - recovery increment/reset bias voltage"
+  ua[3]: "VC - membrane reset bias voltage"
+  ua[4]: ""
+  ua[5]: ""
 
 # Do not change!
 yaml_version: 6
