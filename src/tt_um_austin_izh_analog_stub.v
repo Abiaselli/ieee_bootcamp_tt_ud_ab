@@ -4,7 +4,7 @@
 // This is NOT the analog circuit itself. The analog circuit must be supplied
 // as a custom GDS/LEF hard macro with pins matching izh_sky130_macro below.
 
-module tt_um_austin_izh_analog (
+module izh_sky130_macro_vu_vd_vc (
     input  wire [7:0] ui_in,
     output wire [7:0] uo_out,
     input  wire [7:0] uio_in,
@@ -34,8 +34,8 @@ module tt_um_austin_izh_analog (
         .U      (ua[1]),
         .VC     (ua[2]),
         .VD     (ua[3]),
-        .VGND_B (ua[4]),
-        .VDD_B  (ua[5]),
+        .VGND_B (VGND),
+        .VDD_B  (VPWR),
         .ACK    (ack),
         .REQ_N  (req_n)
     );
