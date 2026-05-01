@@ -1,192 +1,83 @@
 /*
- * Copyright (c) 2024 Your Name
+ * Copyright (c) 2024 Austin Biaselli
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 `default_nettype none
 
-// Tiny Tapeout analog/custom-GDS wrapper stub for the Izhikevich neuron macro.
-// This is NOT the analog circuit itself. The analog circuit must be supplied
-// as a custom GDS/LEF hard macro with pins matching izh_sky130_macro below.
+// Tiny Tapeout SKY130 analog/custom-GDS wrapper stub for the Izhikevich neuron.
 //
-// Digital helper behavior:
-//   ui_in[0] = external ACK, active high
-//   ui_in[1] = auto-ACK enable
-//   ui_in[3:2] = auto-ACK delay code
-//   ui_in[5:4] = auto-ACK pulse width code
-//   uo_out[0] = REQ_N from analog macro
-//   uo_out[1] = ACK actually sent to analog macro
+// Four analog-pin version:
+//   ua[0] = V / ISYN  membrane capacitor node and external input-current node
+//   ua[1] = VDD_B     externally adjustable neuron analog supply/bias
+//   ua[2] = VD        recovery increment/reset bias
+//   ua[3] = VC        membrane reset bias
 //
-// Important: REQ_N must be a valid VDPWR-domain digital signal before it
-// enters this Verilog logic. If the analog REQ_N only swings to a low-voltage
-// analog rail such as 0.18 V, add a comparator/level-shifter in the analog macro
-// or export REQ_N on an analog pin instead.
+// Digital pins:
+//   ui_in[0]  = ACK, active high
+//   uo_out[0] = REQ_N, active low
+//
+// Notes:
+//   * The actual transistor-level neuron must be implemented in the custom GDS/LEF.
+//   * REQ_N must be a valid VDPWR-domain digital signal before it is driven onto uo_out[0].
+//     If the analog AER circuit only swings to a low analog rail such as 0.18 V, add a
+//     comparator/level shifter in the custom layout, or export REQ_N on an analog pin instead.
+//   * VD and VC are kept as external analog pins in this version. If you need fewer analog pins,
+//     tie VD to VDD_B and VC to VGND inside the custom layout and set analog_pins to 2.
 
-module  tt_um_abiaselli_UDIZH1 (
-    input  wire [7:0] ui_in,
-    output wire [7:0] uo_out,
-    input  wire [7:0] uio_in,
-    output wire [7:0] uio_out,
-    output wire [7:0] uio_oe,
-    input  wire       ena,
+module tt_um_abiaselli_UDIZH1 (
+    input  wire       VGND,
+    input  wire       VDPWR,   // 1.8 V digital core rail, useful for REQ_N output buffering/level shifting
+    // input  wire    VAPWR,   // 3.3 V analog rail; only add this if uses_3v3: true and using the 3v3 DEF
+    input  wire [7:0] ui_in,   // Dedicated digital inputs
+    output wire [7:0] uo_out,  // Dedicated digital outputs
+    input  wire [7:0] uio_in,  // Bidirectional GPIO input path
+    output wire [7:0] uio_out, // Bidirectional GPIO output path
+    output wire [7:0] uio_oe,  // Bidirectional GPIO output enable, active high
+    inout  wire [7:0] ua,      // Analog pins; only ua[0]..ua[3] are used by this project
+    input  wire       ena,     // High when selected
     input  wire       clk,
-    input  wire       rst_n,
-    inout  wire [7:0] ua
+    input  wire       rst_n
 );
 
-    // Suggested analog pin map:
-    // ua[0] = V / Isyn injection node
-    // ua[1] = U monitor node
-    // ua[2] = VC reset bias
-    // ua[3] = VD recovery increment bias
-    // ua[4] = local VGND/reference bias
-    // ua[5] = local VDD/bias supply for neuron macro
-    // ua[6] and ua[7] are intentionally unused; TT analog shuttles only expose
-    // the first six analog pins when purchased/connected.
+    wire ack_to_macro = ui_in[0] & ena;
+    wire req_n_from_macro;
 
-    wire req_n;
-    wire ack_ext = ui_in[0] & ena;
-    wire auto_ack_en = ui_in[1] & ena;
-
-    wire ack_auto;
-    aer_auto_ack #(
-        .CTR_WIDTH(8)
-    ) ack_ctrl (
-        .clk        (clk),
-        .rst_n      (rst_n),
-        .enable     (auto_ack_en),
-        .req_n      (req_n),
-        .delay_sel  (ui_in[3:2]),
-        .width_sel  (ui_in[5:4]),
-        .ack        (ack_auto)
-    );
-
-    wire ack_to_macro = ack_ext | ack_auto;
-
-    izh_sky130_macro izh0 (
+    // This submodule name is a placeholder for the custom analog/layout cell.
+    // In the final GDS/LEF flow, make sure the physical top-level pins match
+    // tt_um_abiaselli_UDIZH1 and the functional connectivity below.
+    izh_sky130_macro_4pin izh0 (
         .V      (ua[0]),
-        .U      (ua[1]),
-        .VC     (ua[2]),
-        .VD     (ua[3]),
-        .VGND_B (ua[4]),
-        .VDD_B  (ua[5]),
+        .VDD_B  (ua[1]),
+        .VD     (ua[2]),
+        .VC     (ua[3]),
+        .VGND   (VGND),
+        .VDPWR  (VDPWR),
         .ACK    (ack_to_macro),
-        .REQ_N  (req_n)
+        .REQ_N  (req_n_from_macro)
     );
 
-    assign uo_out = {6'b0, ack_to_macro, req_n};
+    // Active-low request/spike output. When the project is not selected, hold inactive high.
+    assign uo_out[0] = ena ? req_n_from_macro : 1'b1;
+    assign uo_out[7:1] = 7'b0;
 
-    // Not using bidirectional digital GPIOs in this first wrapper.
+    // No bidirectional digital GPIOs used.
     assign uio_out = 8'b0;
     assign uio_oe  = 8'b0;
 
-    // Prevent unused warnings.
-    wire _unused = &{uio_in, ui_in[7:6], ua[6], ua[7], 1'b0};
-
-endmodule
-
-module aer_auto_ack #(
-    parameter CTR_WIDTH = 8
-) (
-    input  wire                 clk,
-    input  wire                 rst_n,
-    input  wire                 enable,
-    input  wire                 req_n,
-    input  wire [1:0]           delay_sel,
-    input  wire [1:0]           width_sel,
-    output reg                  ack
-);
-
-    localparam S_IDLE  = 2'd0;
-    localparam S_DELAY = 2'd1;
-    localparam S_ACK   = 2'd2;
-
-    reg [1:0] state;
-    reg [CTR_WIDTH-1:0] count;
-
-    reg req_n_d;
-    wire req_fall = req_n_d & ~req_n;
-
-    function [CTR_WIDTH-1:0] delay_count;
-        input [1:0] sel;
-        begin
-            case (sel)
-                2'b00: delay_count = 8'd1;
-                2'b01: delay_count = 8'd4;
-                2'b10: delay_count = 8'd16;
-                default: delay_count = 8'd64;
-            endcase
-        end
-    endfunction
-
-    function [CTR_WIDTH-1:0] width_count;
-        input [1:0] sel;
-        begin
-            case (sel)
-                2'b00: width_count = 8'd1;
-                2'b01: width_count = 8'd4;
-                2'b10: width_count = 8'd16;
-                default: width_count = 8'd64;
-            endcase
-        end
-    endfunction
-
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            req_n_d <= 1'b1;
-            state   <= S_IDLE;
-            count   <= {CTR_WIDTH{1'b0}};
-            ack     <= 1'b0;
-        end else begin
-            req_n_d <= req_n;
-            ack <= 1'b0;
-
-            if (!enable) begin
-                state <= S_IDLE;
-                count <= {CTR_WIDTH{1'b0}};
-            end else begin
-                case (state)
-                    S_IDLE: begin
-                        if (req_fall) begin
-                            state <= S_DELAY;
-                            count <= delay_count(delay_sel);
-                        end
-                    end
-                    S_DELAY: begin
-                        if (count == 0) begin
-                            state <= S_ACK;
-                            count <= width_count(width_sel);
-                        end else begin
-                            count <= count - 1'b1;
-                        end
-                    end
-                    S_ACK: begin
-                        ack <= 1'b1;
-                        if (count == 0) begin
-                            state <= S_IDLE;
-                        end else begin
-                            count <= count - 1'b1;
-                        end
-                    end
-                    default: begin
-                        state <= S_IDLE;
-                    end
-                endcase
-            end
-        end
-    end
+    // Consume otherwise-unused template inputs/pins for lint cleanliness.
+    wire _unused = &{clk, rst_n, uio_in, ui_in[7:1], ua[7:4], 1'b0};
 
 endmodule
 
 (* blackbox *)
-module izh_sky130_macro (
+module izh_sky130_macro_4pin (
     inout  wire V,
-    inout  wire U,
-    inout  wire VC,
-    inout  wire VD,
-    inout  wire VGND_B,
     inout  wire VDD_B,
+    inout  wire VD,
+    inout  wire VC,
+    input  wire VGND,
+    input  wire VDPWR,
     input  wire ACK,
     output wire REQ_N
 );
