@@ -1,57 +1,71 @@
 # Tiny Tapeout project information
 project:
-  title:        "Fixed-point UD Izhikevich Neuron"      # Project title
-  author:       "Austin Biaselli"      # Your name
+  title: "Analog Izhikevich Neuron"
+  author: "Austin Biaselli"
   discord:      "auslander3951"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  "This is a circuit implementation of the Izhikevich model system of differential equations for neuronal spiking."      # One line description of what your project does
+  description: "Mixed-signal SKY130 Izhikevich neuron with analog V/U dynamics and digital AER ACK/REQ wrapper"      # One line description of what your project does
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
-  clock_hz:     1000       # Clock frequency in Hz (or 0 if not applicable)
+  clock_hz: 1000000
 
-  # How many tiles your design occupies? A single tile is about 167x108 uM.
-  tiles: "1x1"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
+  # SKY130 analog projects are 1x2 or 2x2. Start with 1x2 unless layout/caps need more room.
+  tiles: "1x2"
 
-  # Your top module name must start with "tt_um_". Make it unique by including your github username:
-  top_module:  "tt_um_abiaselli_UDIZH1"
+  # Uses all six user analog pins ua[0] through ua[5]. TT exposes at most the first six analog pins.
+  analog_pins: 6
 
-  # List your project's source files here.
-  # Source files must be in ./src and you must list each source file separately, one per line.
-  # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
+  # Set true only if the final custom-GDS macro uses the TT 3.3V VAPWR rail.
+  # This first version expects the neuron bias/supply to be driven externally on ua[5], so keep false.
+  uses_3v3: false
+
+  # Must match the Verilog stub module name and the final GDS/LEF top cell name.
+  top_module: "tt_um_austin_izh_analog"
+
+  # Source files must live in ./src. Put the wrapper stub at ./src/project.v.
   source_files:
     - "project.v"
 
-# The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
-# This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
+# Pin descriptions for the datasheet/website. Leave unused pins blank; do not add or remove pins.
 pinout:
-  ui[0]: "step enable"
-  ui[1]: "I current bit 0"
-  ui[2]: "I current bit 1"
-  ui[3]: "I current bit 2"
-  ui[4]: "I current bit 3"
-  ui[5]: "I current bit 4"
-  ui[6]: "I current bit 5"
-  ui[7]: "I current bit 6"
+  # Dedicated digital inputs
+  ui[0]: "ACK_EXT - external acknowledge/reset pulse, active high"
+  ui[1]: "AUTO_ACK_EN - enable internal delayed ACK generator"
+  ui[2]: "ACK_DELAY0 - auto-ACK delay select bit 0"
+  ui[3]: "ACK_DELAY1 - auto-ACK delay select bit 1"
+  ui[4]: "ACK_WIDTH0 - auto-ACK pulse width select bit 0"
+  ui[5]: "ACK_WIDTH1 - auto-ACK pulse width select bit 1"
+  ui[6]: ""
+  ui[7]: ""
 
-#output
-  uo[0]: "v display bit 0"
-  uo[1]: "v display bit 1"
-  uo[2]: "v display bit 2"
-  uo[3]: "v display bit 3"
-  uo[4]: "v display bit 4"
-  uo[5]: "v display bit 5"
-  uo[6]: "v display bit 6"
-  uo[7]: "v display bit 7 / spike all-high"
+  # Dedicated digital outputs
+  uo[0]: "REQ_N - active-low spike/request from analog neuron macro"
+  uo[1]: "ACK_TO_MACRO - ACK actually sent to analog reset/AER circuit"
+  uo[2]: ""
+  uo[3]: ""
+  uo[4]: ""
+  uo[5]: ""
+  uo[6]: ""
+  uo[7]: ""
 
-#bi-directional
-  uio[0]: "u display bit 0"
-  uio[1]: "u display bit 1"
-  uio[2]: "u display bit 2"
-  uio[3]: "u display bit 3"
-  uio[4]: "u display bit 4"
-  uio[5]: "u display bit 5"
-  uio[6]: "u display bit 6"
-  uio[7]: "u display bit 7"
-
+  # Bidirectional digital pins
+  uio[0]: ""
+  uio[1]: ""
+  uio[2]: ""
+  uio[3]: ""
+  uio[4]: ""
+  uio[5]: ""
+  uio[6]: ""
   uio[7]: ""
+
+  # Analog pins - analog_pins above must match the number used here.
+  ua[0]: "V / ISYN - membrane capacitor node and external input-current injection node"
+  ua[1]: "U - recovery-variable capacitor monitor node"
+  ua[2]: "VC - membrane reset bias voltage"
+  ua[3]: "VD - recovery increment/reset bias voltage"
+  ua[4]: "VGND_B - local analog ground/reference bias"
+  ua[5]: "VDD_B - local neuron bias/supply input"
+
+# Do not change!
+yaml_version: 6
 
 # Do not change!
 yaml_version: 6
