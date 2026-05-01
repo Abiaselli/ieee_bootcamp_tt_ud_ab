@@ -18,7 +18,7 @@ project:
   uses_3v3: false
 
   # Must match the Verilog stub module name and the final GDS/LEF top cell name.
-  top_module: "tt_um_austin_izh_analog"
+  top_module: "tt_um_abiaselli_UDIZH1"
 
   # Source files must live in ./src. Put the wrapper stub at ./src/project.v.
   source_files:
