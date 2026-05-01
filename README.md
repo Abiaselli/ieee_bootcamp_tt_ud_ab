@@ -6,9 +6,8 @@
 ## Includes:
 A current tile design for an IZH neuron and a PCB design based on the suggesetion to provide both.
 
-# Izhikevich SKY130 conversion notes
-
-This pack was generated from the uploaded `zvndigital.cir` topology and the 2022 subthreshold CMOS paper component-size table.
+# Izhikevich SKY130 
+This is an implementation of a subthreshold CMOS design of the Izhikevich neuron, digital logic controleld by ACK/REQ on the AER and analog pins to directly control a,b,c,d,I on node U, Vc, Vd.
 
 # TT analog Izhikevich wrapper: V/U/VD/VC pinout
 
