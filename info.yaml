@@ -4,7 +4,7 @@ project:
   author: "Austin Biaselli"
   discord:      "auslander3951"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
   description: "Mixed-signal SKY130 Izhikevich neuron with analog V/U dynamics and digital AER ACK/REQ wrapper"      # One line description of what your project does
-  language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
+  language:     "Analog" # other examples include SystemVerilog, Amaranth, VHDL, etc
   clock_hz: 1000000
 
   # SKY130 analog projects are 1x2 or 2x2. Start with 1x2 unless layout/caps need more room.
