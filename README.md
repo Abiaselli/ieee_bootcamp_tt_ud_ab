@@ -7,39 +7,44 @@
 ## Includes:
 A current tile design for an IZH neuron and a PCB design based on the suggesetion to provide both.
 
-## What is Tiny Tapeout?
+# Izhikevich SKY130 conversion notes
 
-Tiny Tapeout is an educational project that aims to make it easier and cheaper than ever to get your digital and analog designs manufactured on a real chip.
+This pack was generated from the uploaded `zvndigital.cir` topology and the 2022 subthreshold CMOS paper component-size table.
 
-To learn more and get started, visit https://tinytapeout.com.
+## Pin map
 
-## Set up your Verilog project
+| Tiny Tapeout pin | Proposed function | Notes |
+|---|---|---|
+| ua[0] | V / Isyn | Membrane node and external current/voltage injection node |
+| ua[1] | U | Recovery-variable monitor node |
+| ua[2] | VC | V reset bias |
+| ua[3] | VD | U increment/reset bias |
+| ua[4] | VGND_B | Local ground/reference bias |
+| ua[5] | VDD_B | Local neuron supply/bias |
+| ui_in[0] | ACK | Active-high acknowledge/reset input |
+| uo_out[0] | REQ_N | Active-low request/spike output |
 
-1. Add your Verilog files to the `src` folder.
-2. Edit the [info.yaml](info.yaml) and update information about your project, paying special attention to the `source_files` and `top_module` properties. If you are upgrading an existing Tiny Tapeout project, check out our [online info.yaml migration tool](https://tinytapeout.github.io/tt-yaml-upgrade-tool/).
-3. Edit [docs/info.md](docs/info.md) and add a description of your project.
-4. Adapt the testbench to your design. See [test/README.md](test/README.md) for more information.
+## Ratio-scaled SKY130 sizes
 
-The GitHub action will automatically build the ASIC files using [LibreLane](https://www.zerotoasiccourse.com/terminology/librelane/).
+These use rough minimums W>=0.42um and L>=0.15um while preserving each paper W/L ratio exactly. Check your specific PDK/CDF constraints in Virtuoso.
 
-## Enable GitHub actions to build the results page
-
-- [Enabling GitHub Pages](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part)
-
-## Resources
-
-- [FAQ](https://tinytapeout.com/faq/)
-- [Digital design lessons](https://tinytapeout.com/digital_design/)
-- [Learn how semiconductors work](https://tinytapeout.com/siliwiz/)
-- [Join the community](https://tinytapeout.com/discord)
-- [Build your design locally](https://www.tinytapeout.com/guides/local-hardening/)
-
-## What next?
-
-- [Submit your design to the next shuttle](https://app.tinytapeout.com/).
-- Edit [this README](README.md) and explain your design, how it works, and how to test it.
-- Share your project on your social network of choice:
-  - LinkedIn [#tinytapeout](https://www.linkedin.com/search/results/content/?keywords=%23tinytapeout) [@TinyTapeout](https://www.linkedin.com/company/100708654/)
-  - Mastodon [#tinytapeout](https://chaos.social/tags/tinytapeout) [@matthewvenn](https://chaos.social/@matthewvenn)
-  - X (formerly Twitter) [#tinytapeout](https://twitter.com/hashtag/tinytapeout) [@tinytapeout](https://twitter.com/tinytapeout)
-  - Bluesky [@tinytapeout.com](https://bsky.app/profile/tinytapeout.com)
+| Device | Type | Paper W/L | Ratio-scaled W/L |
+|---|---|---:|---:|
+| M1 | NMOS | 300n/125n | 420n/175n |
+| M2 | PMOS | 300n/125n | 420n/175n |
+| M3 | PMOS | 300n/125n | 420n/175n |
+| M4 | PMOS | 650n/90n | 1.08333u/150n |
+| M5 | NMOS | 400n/600n | 420n/630n |
+| M6 | NMOS | 700n/150n | 700n/150n |
+| M7 | NMOS | 175n/350n | 420n/840n |
+| M8 | PMOS | 1.3u/125n | 1.56u/150n |
+| M9 | NMOS | 100n/100n | 420n/420n |
+| M10 | PMOS | 1u/100n | 1.5u/150n |
+| M11 | NMOS | 1u/100n | 1.5u/150n |
+| M12 | PMOS | 100n/100n | 420n/420n |
+| M13 | NMOS | 200n/100n | 420n/210n |
+| M14 | NMOS | 100n/100n | 420n/420n |
+| M15 | NMOS | 100n/250n | 420n/1.05u |
+| M16 | NMOS | 100n/100n | 420n/420n |
+| M17 | PMOS | 100n/100n | 420n/420n |
+| M18 | PMOS | 200n/100n | 420n/210n |
