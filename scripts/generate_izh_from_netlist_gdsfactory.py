@@ -543,30 +543,79 @@ def draw_routing(c, devices: List[Device], term_pos: Dict[str, Dict[str, Tuple[f
 
 
 def write_lef(path: Path, top: str, template: DefTemplate):
+    """
+    Write an abstract LEF, not a physical layout.
+
+    This intentionally keeps the TT template pin rectangles, because the top-level
+    shuttle integration wants the macro pins at the template locations.  The
+    internal MOS/diff/poly geometries live only in the GDS.  LEF only needs:
+      * the macro size,
+      * the public port rectangles,
+      * routing obstructions so the top-level router does not run through the
+        analog layout.
+
+    If the LEF looks similar to the DEF template, that is expected.  What should
+    differ from a DEF is the file structure: LEF has MACRO/PIN/OBS sections, not
+    ROW/TRACKS/NETS/COMPONENTS sections.
+    """
     x0, y0, x1, y1 = template.die
+    w = x1 - x0
+    h = y1 - y0
+
+    # Keep OBS away from the top/bottom template pin rows so pins remain visible
+    # and accessible.  Units are microns, matching the DEF parser conversion.
+    obs_margin_x = 3.0
+    obs_margin_bottom = 4.0
+    obs_margin_top = 4.0
+    ox0, oy0 = obs_margin_x, obs_margin_bottom
+    ox1, oy1 = max(obs_margin_x, w - obs_margin_x), max(obs_margin_bottom, h - obs_margin_top)
+
     lines: List[str] = []
     lines.append("VERSION 5.8 ;")
     lines.append("BUSBITCHARS \"[]\" ;")
     lines.append("DIVIDERCHAR \"/\" ;")
+    lines.append("UNITS")
+    lines.append("  DATABASE MICRONS 1000 ;")
+    lines.append("END UNITS")
     lines.append(f"MACRO {top}")
     lines.append("  CLASS BLOCK ;")
-    lines.append("  ORIGIN 0 0 ;")
-    lines.append(f"  SIZE {x1 - x0:.3f} BY {y1 - y0:.3f} ;")
+    lines.append("  FOREIGN {top} 0.000 0.000 ;".format(top=top))
+    lines.append("  ORIGIN 0.000 0.000 ;")
+    lines.append(f"  SIZE {w:.3f} BY {h:.3f} ;")
     lines.append("  SYMMETRY X Y R90 ;")
-    # Include TT pins in LEF. For analog projects this abstract LEF is intentionally simple.
+
+    # Include all TT pins, not just the user-visible pins.  The Verilog wrapper
+    # still has the full TT analog-template port list, so the abstract should
+    # preserve the top-level pin contract.
     for p in template.pins.values():
         direction = p.direction.upper()
         use = "SIGNAL"
+        if p.name in {"VGND", "VNB"}:
+            use = "GROUND"
+        elif p.name in {"VPWR", "VDPWR", "VAPWR", "VPB"}:
+            use = "POWER"
         lines.append(f"  PIN {p.name}")
         lines.append(f"    DIRECTION {direction} ;")
         lines.append(f"    USE {use} ;")
         lines.append("    PORT")
         (a, b) = p.bbox
+        # The TT templates place the boundary pins on met4.
         lines.append("      LAYER met4 ;")
         lines.append(f"        RECT {a[0]:.3f} {a[1]:.3f} {b[0]:.3f} {b[1]:.3f} ;")
         lines.append("    END")
         lines.append(f"  END {p.name}")
+
+    # Obstructions: block the interior on the routing layers used by this
+    # starter layout.  Do not include met5; TT reserves met5 for the top-level
+    # power grid.  Do not include diffusion/poly in LEF because LEF abstracts
+    # routing blockages, not device-level mask detail.
+    lines.append("  OBS")
+    for layer in ["li1", "met1", "met2", "met3", "met4"]:
+        lines.append(f"    LAYER {layer} ;")
+        lines.append(f"      RECT {ox0:.3f} {oy0:.3f} {ox1:.3f} {oy1:.3f} ;")
+    lines.append("  END")
     lines.append(f"END {top}")
+    lines.append("END LIBRARY")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines) + "\n")
 
