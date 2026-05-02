@@ -1,9 +1,13 @@
 VERSION 5.8 ;
 BUSBITCHARS "[]" ;
 DIVIDERCHAR "/" ;
+UNITS
+  DATABASE MICRONS 1000 ;
+END UNITS
 MACRO tt_um_abiaselli_UDIZH1
   CLASS BLOCK ;
-  ORIGIN 0 0 ;
+  FOREIGN tt_um_abiaselli_UDIZH1 0.000 0.000 ;
+  ORIGIN 0.000 0.000 ;
   SIZE 161.000 BY 225.760 ;
   SYMMETRY X Y R90 ;
   PIN clk
@@ -414,4 +418,17 @@ MACRO tt_um_abiaselli_UDIZH1
         RECT 74.830 224.760 75.130 225.760 ;
     END
   END uo_out[7]
+  OBS
+    LAYER li1 ;
+      RECT 3.000 4.000 158.000 221.760 ;
+    LAYER met1 ;
+      RECT 3.000 4.000 158.000 221.760 ;
+    LAYER met2 ;
+      RECT 3.000 4.000 158.000 221.760 ;
+    LAYER met3 ;
+      RECT 3.000 4.000 158.000 221.760 ;
+    LAYER met4 ;
+      RECT 3.000 4.000 158.000 221.760 ;
+  END
 END tt_um_abiaselli_UDIZH1
+END LIBRARY
