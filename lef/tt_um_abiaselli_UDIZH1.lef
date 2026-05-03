@@ -418,6 +418,22 @@ MACRO tt_um_abiaselli_UDIZH1
         RECT 74.830 224.760 75.130 225.760 ;
     END
   END uo_out[7]
+  PIN VGND
+    DIRECTION INOUT ;
+    USE GROUND ;
+    PORT
+      LAYER met4 ;
+        RECT 5.000 17.450 156.000 18.550 ;
+    END
+  END VGND
+  PIN VDPWR
+    DIRECTION INOUT ;
+    USE POWER ;
+    PORT
+      LAYER met4 ;
+        RECT 5.000 20.650 156.000 21.750 ;
+    END
+  END VDPWR
   OBS
     LAYER li1 ;
       RECT 3.000 4.000 158.000 221.760 ;

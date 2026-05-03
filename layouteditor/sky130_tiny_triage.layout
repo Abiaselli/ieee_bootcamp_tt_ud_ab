@@ -1,0 +1,56 @@
+#!/usr/bin/layout
+#name=TinyTapeout SKY130 quick DRC triage
+#help=Starter LayoutEditor macro for quick DRC triage only. It is NOT the official SKY130 signoff deck.
+
+// This macro is meant to be run in LayoutEditor on Windows for fast iteration.
+// Use the Tiny Tapeout/KLayout/Magic precheck as the source of truth before submission.
+// LayoutEditor documentation says complete DRC runs are commonly folded into a macro,
+// but LayoutEditor does not import Calibre/Assura decks directly.
+
+int main(){
+    layout->drcTool->result = "TinyTapeout/SKY130 quick triage only - not signoff\r\n";
+
+    // Name the layer numbers used by the generated GDS. Datatypes are not separated
+    // in this simple macro, so use this for rough triage/visual grouping only.
+    layers::num[64].name = "nwell";
+    layers::num[65].name = "diff/tap";
+    layers::num[66].name = "poly/licon";
+    layers::num[67].name = "li1/mcon";
+    layers::num[68].name = "met1/via";
+    layers::num[69].name = "met2/via2";
+    layers::num[70].name = "met3/via3";
+    layers::num[71].name = "met4/pin/label";
+    layers::num[93].name = "nsdm";
+    layers::num[94].name = "psdm";
+    layers::num[95].name = "npc";
+    layers::disableUnusedLayers(layout->drawing);
+
+    // Representative checks for the error classes we are seeing. These are not
+    // complete SKY130 rules; they are fast filters to catch obvious geometry.
+    layout->drcTool->ruleName = "met4 min width rough";
+    layout->drcTool->minimumSize(300, 71, true);
+
+    layout->drcTool->ruleName = "met4 min spacing rough";
+    layout->drcTool->minimumElementDistance(300, 71, true);
+
+    layout->drcTool->ruleName = "met2 min width rough";
+    layout->drcTool->minimumSize(140, 69, true);
+
+    layout->drcTool->ruleName = "met1 min width rough";
+    layout->drcTool->minimumSize(140, 68, true);
+
+    layout->drcTool->ruleName = "li1 min width rough";
+    layout->drcTool->minimumSize(170, 67, true);
+
+    layout->drcTool->ruleName = "poly min width rough";
+    layout->drcTool->minimumSize(150, 66, true);
+
+    layout->drcTool->ruleName = "diff min width rough";
+    layout->drcTool->minimumSize(150, 65, true);
+
+    layout->drcTool->ruleName = "nwell min width rough";
+    layout->drcTool->minimumSize(840, 64, true);
+
+    layout->drcTool->showReport();
+    return 0;
+}

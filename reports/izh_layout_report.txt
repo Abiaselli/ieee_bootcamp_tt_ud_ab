@@ -1,0 +1,22 @@
+top=tt_um_abiaselli_UDIZH1
+netlist=spice/izhsky1304.cir
+mos_devices=18
+size_mode=ratio_scaled
+  M1 pfet D=N002     G=N002     S=VDPWR    B=VDPWR    W=0.42 L=0.42
+  M3 pfet D=V        G=N002     S=VDPWR    B=VDPWR    W=0.42 L=0.42
+  M4 pfet D=U        G=N002     S=VDPWR    B=VDPWR    W=0.42 L=0.175
+  M8 pfet D=U        G=N001     S=VD       B=VD       W=1.56 L=0.15
+ M10 pfet D=N005     G=V        S=VDPWR    B=VDPWR    W=1.5 L=0.15
+ M13 pfet D=N004     G=ACK      S=VDPWR    B=VDPWR    W=0.42 L=0.21
+ M17 pfet D=N001     G=ACK      S=VDPWR    B=VDPWR    W=0.42 L=0.42
+ M18 pfet D=REQ_N    G=N003     S=VDPWR    B=VDPWR    W=0.42 L=0.21
+  M2 nfet D=N002     G=V        S=N007     B=N007     W=2.5 L=5
+  M5 nfet D=V        G=U        S=N007     B=N007     W=2.5 L=2.5
+  M6 nfet D=U        G=U        S=N007     B=N007     W=0.5 L=2.5
+  M7 nfet D=V        G=ACK      S=VC       B=VC       W=0.42 L=0.42
+  M9 nfet D=N005     G=V        S=VGND     B=VGND     W=0.42 L=0.42
+ M11 nfet D=N003     G=N005     S=VGND     B=VGND     W=0.42 L=0.42
+ M14 nfet D=N006     G=N003     S=VGND     B=VGND     W=0.42 L=0.42
+ M15 nfet D=REQ_N    G=N003     S=VGND     B=VGND     W=0.42 L=1.05
+ M16 nfet D=N001     G=ACK      S=N006     B=N006     W=0.42 L=0.42
+ M12 pfet D=N003     G=N005     S=N004     B=N004     W=0.42 L=0.42
